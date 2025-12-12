@@ -1,679 +1,582 @@
-import React, { useState, useEffect, useRef } from 'react';
-import {
-  Shield,
-  Wind,
-  Flame,
-  FlaskConical,
-  ClipboardCheck,
-  Phone,
-  Mail,
-  MapPin,
-  Menu,
-  X,
-  CheckCircle2,
-  Globe,
-  Users,
-  Award,
-  ChevronDown,
-  ArrowRight,
-  Check
-} from 'lucide-react';
-
-/* --- DATA --- */
-
-const SERVICES_DATA = [
-  {
-    id: 'site-inspection',
-    title: "Site Inspections",
-    icon: ClipboardCheck,
-    shortDesc: "Rigorous evaluations by certified experts to identify risks and ensure strict regulatory adherence.",
-    fullDesc: "Our comprehensive site inspections are designed to identify potential hazards before they become liabilities. We conduct thorough walkthroughs of construction sites, industrial facilities, and commercial properties, ensuring alignment with OSHA, DOB, and local safety regulations.",
-    benefits: ["OSHA & DOB Compliance Checks", "Hazard Identification & Risk Assessment", "Daily, Weekly, or Monthly Reporting", "Corrective Action Plans"],
-    formValue: "Site Inspection"
-  },
-  {
-    id: 'lab-analysis',
-    title: "Lab Analysis",
-    icon: FlaskConical,
-    shortDesc: "State-of-the-art testing for environmental hazards with rapid, comprehensive reporting.",
-    fullDesc: "We leverage accredited laboratories to provide precise analysis of environmental samples. Whether you are dealing with unknown materials or routine compliance testing, our detailed reports provide the clarity you need to make informed decisions.",
-    benefits: ["Asbestos & Lead Testing", "Mold & Spore Analysis", "Water Quality Testing", "24-48 Hour Turnaround Available"],
-    formValue: "Lab Analysis"
-  },
-  {
-    id: 'air-quality',
-    title: "Air Quality",
-    icon: Wind,
-    shortDesc: "Advanced monitoring systems to detect contaminants and ensure breathable, safe environments.",
-    fullDesc: "Breathing safe air is non-negotiable. Our air quality monitoring services utilize advanced telemetry to track particulate matter, volatile organic compounds (VOCs), and other airborne contaminants in real-time, protecting both workers and the public.",
-    benefits: ["Real-time Dust Monitoring", "Community Air Monitoring Plans (CAMP)", "Indoor Air Quality (IAQ) Assessments", "Vapor Intrusion Studies"],
-    formValue: "Air Quality Monitoring"
-  },
-  {
-    id: 'fire-safety',
-    title: "Fire Safety",
-    icon: Flame,
-    shortDesc: "Strategic assessments and planning to mitigate fire risks and protect your most valuable assets.",
-    fullDesc: "Fire safety goes beyond having extinguishers. We help you develop comprehensive fire protection strategies, including evacuation planning, system audits, and code compliance reviews to ensure your property and people remain safe.",
-    benefits: ["Fire Safety Plans", "Emergency Evacuation Drills", "Fire Extinguisher Inspections", "FDNY Code Compliance Reviews"],
-    formValue: "Fire Safety Assessment"
-  }
-];
-
-/* --- HOOKS & UTILS --- */
-
-const useOnScreen = (options, triggerOnce = true) => {
-  const ref = useRef(null);
-  const [isVisible, setIsVisible] = useState(false);
-
-  useEffect(() => {
-    const observer = new IntersectionObserver(([entry]) => {
-      if (entry.isIntersecting) {
-        setIsVisible(true);
-        if (triggerOnce && ref.current) {
-          observer.unobserve(ref.current);
-        }
-      }
-    }, options);
-
-    if (ref.current) {
-      observer.observe(ref.current);
-    }
-
-    return () => {
-      if (ref.current) observer.unobserve(ref.current);
-    };
-  }, [ref, options, triggerOnce]);
-
-  return [ref, isVisible];
-};
-
-/* --- COMPONENTS --- */
-
-const Reveal = ({ children, className = "", delay = 0, direction = "up" }) => {
-  const [ref, isVisible] = useOnScreen({ threshold: 0.15 });
-
-  const directionClass = {
-    up: isVisible ? "opacity-100 translate-y-0" : "opacity-0 translate-y-12",
-    down: isVisible ? "opacity-100 translate-y-0" : "opacity-0 -translate-y-12",
-    left: isVisible ? "opacity-100 translate-x-0" : "opacity-0 translate-x-12",
-    right: isVisible ? "opacity-100 translate-x-0" : "opacity-0 -translate-x-12",
-  };
-
-  return (
-    <div
-      ref={ref}
-      className={`transition-all duration-1000 cubic-bezier(0.16, 1, 0.3, 1) ${directionClass[direction]} ${className}`}
-      style={{ transitionDelay: `${delay}ms` }}
-    >
-      {children}
-    </div>
-  );
-};
-
-const Logo = ({ className = "h-10", dark = false }) => (
-  <svg viewBox="0 0 300 60" className={className} fill="none" xmlns="http://www.w3.org/2000/svg">
-    <path d="M50 5C50 5 85 5 85 30C85 55 50 60 50 60C50 60 15 55 15 30C15 5 50 5 50 5Z" 
-      stroke={dark ? "#0f172a" : "#ffffff"} strokeWidth="3" fill={dark ? "#ffffff" : "transparent"}/>
-    <path d="M50 5V60" stroke={dark ? "#0f172a" : "#ffffff"} strokeWidth="2"/>
-    <path d="M20 30H80" stroke={dark ? "#0f172a" : "#ffffff"} strokeWidth="2"/>
-    <path d="M25 15H75" stroke={dark ? "#0f172a" : "#ffffff"} strokeWidth="2"/>
-    <path d="M25 45H75" stroke={dark ? "#0f172a" : "#ffffff"} strokeWidth="2"/>
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>New York Safety Services LLC | Est. 2009</title>
     
-    <path d="M15 30C15 30 12 50 30 58C30 58 20 55 17 40C15 30 15 30 15 30Z" fill="#22c55e"/>
-    <path d="M15 30C15 30 20 20 35 30C35 30 25 25 15 30Z" fill="#15803d"/>
+    <!-- React & ReactDOM -->
+    <script crossorigin src="https://unpkg.com/react@18/umd/react.production.min.js"></script>
+    <script crossorigin src="https://unpkg.com/react-dom@18/umd/react-dom.production.min.js"></script>
     
-    <text x="100" y="42" fontFamily="serif" fontWeight="bold" fontSize="38" fill={dark ? "#0f172a" : "#ffffff"} letterSpacing="0.05em">NYSS</text>
-  </svg>
-);
+    <!-- Babel -->
+    <script src="https://unpkg.com/@babel/standalone/babel.min.js"></script>
+    
+    <!-- Tailwind CSS -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    
+    <!-- Google Fonts -->
+    <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@300;400;500;700&family=Montserrat:wght@400;500;600;700;800&display=swap" rel="stylesheet">
 
-const ServiceCard = ({ service, delay, onLearnMore }) => {
-  const Icon = service.icon;
-  return (
-    <Reveal delay={delay} className="group relative h-full">
-      <div className="absolute inset-0 bg-gradient-to-br from-emerald-600 to-slate-900 rounded-2xl opacity-0 group-hover:opacity-100 transition-opacity duration-500 -z-10 blur-sm transform group-hover:scale-105"></div>
-      <div 
-        onClick={() => onLearnMore(service)}
-        className="relative h-full bg-white p-8 rounded-2xl shadow-lg border border-slate-100 group-hover:border-transparent transition-all duration-300 group-hover:-translate-y-2 overflow-hidden cursor-pointer"
-      >
-        
-        {/* Decorative background element */}
-        <div className="absolute top-0 right-0 w-32 h-32 bg-slate-50 rounded-bl-full -mr-8 -mt-8 transition-transform group-hover:scale-110 group-hover:bg-emerald-50 duration-500"></div>
-
-        <div className="relative z-10">
-          <div className="w-14 h-14 bg-slate-50 rounded-xl flex items-center justify-center mb-6 group-hover:bg-emerald-600 transition-colors duration-300 shadow-sm">
-            <Icon className="w-7 h-7 text-slate-700 group-hover:text-white transition-colors duration-300" />
-          </div>
-          
-          <h3 className="text-xl font-bold text-slate-900 mb-3 font-serif group-hover:text-emerald-700 transition-colors">{service.title}</h3>
-          <p className="text-slate-600 leading-relaxed text-sm">{service.shortDesc}</p>
-          
-          <button 
-            className="mt-6 flex items-center text-emerald-600 text-sm font-semibold opacity-0 group-hover:opacity-100 transform translate-y-2 group-hover:translate-y-0 transition-all duration-300 bg-transparent border-none p-0 cursor-pointer"
-          >
-            Learn more <ArrowRight className="w-4 h-4 ml-1" />
-          </button>
-        </div>
-      </div>
-    </Reveal>
-  );
-};
-
-const ServiceModal = ({ service, onClose, onContact }) => {
-  if (!service) return null;
-  const Icon = service.icon;
-
-  return (
-    <div className="fixed inset-0 z-[60] flex items-center justify-center p-4">
-      <div className="absolute inset-0 bg-slate-900/80 backdrop-blur-sm" onClick={onClose}></div>
-      <div className="relative bg-white rounded-2xl w-full max-w-2xl max-h-[90vh] overflow-y-auto shadow-2xl animate-in fade-in zoom-in duration-300">
-        <button 
-          onClick={onClose}
-          className="absolute top-4 right-4 p-2 bg-slate-100 hover:bg-slate-200 rounded-full transition-colors text-slate-600 z-10"
-        >
-          <X size={20} />
-        </button>
-
-        <div className="p-8 md:p-10">
-          <div className="flex items-center gap-4 mb-6">
-            <div className="w-16 h-16 bg-emerald-100 rounded-2xl flex items-center justify-center text-emerald-700">
-              <Icon size={32} />
-            </div>
-            <div>
-              <h3 className="text-3xl font-serif font-bold text-slate-900">{service.title}</h3>
-              <p className="text-emerald-600 font-medium">Professional Service Detail</p>
-            </div>
-          </div>
-
-          <div className="prose prose-slate max-w-none mb-8">
-            <p className="text-lg text-slate-600 leading-relaxed">
-              {service.fullDesc}
-            </p>
-          </div>
-
-          <div className="bg-slate-50 rounded-xl p-6 mb-8 border border-slate-100">
-            <h4 className="text-sm font-bold uppercase tracking-wider text-slate-400 mb-4">Key Benefits</h4>
-            <ul className="grid sm:grid-cols-2 gap-4">
-              {service.benefits.map((benefit, idx) => (
-                <li key={idx} className="flex items-start gap-3">
-                  <CheckCircle2 className="w-5 h-5 text-emerald-500 shrink-0 mt-0.5" />
-                  <span className="text-slate-700 font-medium text-sm">{benefit}</span>
-                </li>
-              ))}
-            </ul>
-          </div>
-
-          <div className="flex flex-col sm:flex-row gap-4">
-            <button 
-              onClick={() => onContact(service.formValue)}
-              className="flex-1 bg-emerald-600 hover:bg-emerald-700 text-white font-bold py-4 px-6 rounded-xl transition-all shadow-lg hover:shadow-emerald-500/30 flex items-center justify-center gap-2"
-            >
-              Request Quote
-              <ArrowRight size={18} />
-            </button>
-            <button 
-              onClick={onClose}
-              className="flex-1 bg-white hover:bg-slate-50 text-slate-700 font-bold py-4 px-6 rounded-xl border border-slate-200 transition-all"
-            >
-              Close Details
-            </button>
-          </div>
-        </div>
-      </div>
-    </div>
-  );
-};
-
-const StatCard = ({ number, label }) => (
-  <div className="text-center p-6 border-r last:border-0 border-slate-200/20">
-    <div className="text-4xl md:text-5xl font-bold text-white mb-2 font-serif">{number}</div>
-    <div className="text-emerald-200 text-sm font-medium uppercase tracking-wider">{label}</div>
-  </div>
-);
-
-const Navbar = () => {
-  const [isOpen, setIsOpen] = useState(false);
-  const [isScrolled, setIsScrolled] = useState(false);
-
-  useEffect(() => {
-    const handleScroll = () => setIsScrolled(window.scrollY > 20);
-    window.addEventListener('scroll', handleScroll);
-    return () => window.removeEventListener('scroll', handleScroll);
-  }, []);
-
-  const navLinks = [
-    { name: 'Services', href: '#services' },
-    { name: 'About', href: '#about' },
-    { name: 'Contact', href: '#contact' },
-  ];
-
-  return (
-    <>
-      <nav className={`fixed w-full z-50 transition-all duration-500 ${
-        isScrolled 
-          ? 'bg-white/90 backdrop-blur-md shadow-lg py-3 text-slate-800' 
-          : 'bg-transparent py-6 text-white'
-      }`}>
-        <div className="container mx-auto px-6 flex justify-between items-center">
-          <a href="#" className="flex items-center gap-3 group">
-            <Logo className="h-10 w-auto transition-transform duration-300 group-hover:scale-105" dark={isScrolled} />
-            <div className="hidden md:block">
-              <span className={`block text-2xl font-serif font-bold leading-tight transition-colors ${isScrolled ? 'text-slate-900' : 'text-white'}`}>
-                New York
-              </span>
-              <span className={`block text-xs font-bold tracking-[0.2em] uppercase transition-colors ${isScrolled ? 'text-emerald-600' : 'text-emerald-300'}`}>
-                Safety Services
-              </span>
-            </div>
-          </a>
-
-          <div className="hidden md:flex items-center gap-8">
-            {navLinks.map((link) => (
-              <a
-                key={link.name}
-                href={link.href}
-                className={`font-medium text-sm tracking-wide uppercase hover:text-emerald-500 transition-all relative group ${
-                    isScrolled ? 'text-slate-600' : 'text-slate-200'
-                }`}
-              >
-                {link.name}
-                <span className="absolute -bottom-2 left-0 w-0 h-0.5 bg-emerald-500 transition-all duration-300 group-hover:w-full"></span>
-              </a>
-            ))}
-            <a 
-              href="tel:9178477337" 
-              className={`px-6 py-2.5 rounded-full font-bold text-sm transition-all shadow-lg hover:shadow-xl hover:-translate-y-0.5 flex items-center gap-2 ${
-                isScrolled 
-                  ? 'bg-slate-900 text-white hover:bg-emerald-700' 
-                  : 'bg-white text-slate-900 hover:bg-emerald-50'
-              }`}
-            >
-              <Phone size={16} />
-              (917) 847-7337
-            </a>
-          </div>
-
-          <button 
-            className={`md:hidden p-2 rounded-lg transition-colors ${isScrolled ? 'text-slate-900 hover:bg-slate-100' : 'text-white hover:bg-white/10'}`} 
-            onClick={() => setIsOpen(!isOpen)}
-          >
-            {isOpen ? <X size={24} /> : <Menu size={24} />}
-          </button>
-        </div>
-      </nav>
-
-      {/* Mobile Menu Overlay */}
-      <div className={`fixed inset-0 z-40 bg-slate-900/95 backdrop-blur-xl transition-all duration-500 md:hidden flex items-center justify-center ${isOpen ? 'opacity-100 pointer-events-auto' : 'opacity-0 pointer-events-none'}`}>
-        <div className="flex flex-col items-center gap-8">
-            {navLinks.map((link) => (
-              <a
-                key={link.name}
-                href={link.href}
-                onClick={() => setIsOpen(false)}
-                className="text-2xl font-serif text-white hover:text-emerald-400 transition-colors"
-              >
-                {link.name}
-              </a>
-            ))}
-            <a 
-                href="tel:9178477337" 
-                className="mt-4 px-8 py-4 bg-emerald-600 text-white rounded-full font-bold text-lg flex items-center gap-3 shadow-xl"
-            >
-                <Phone size={20} />
-                Call Now
-            </a>
-        </div>
-      </div>
-    </>
-  );
-};
-
-export default function App() {
-  const [selectedService, setSelectedService] = useState('General Inquiry');
-  const [activeServiceModal, setActiveServiceModal] = useState(null);
-
-  const handleLearnMore = (service) => {
-    setActiveServiceModal(service);
-  };
-
-  const handleModalContact = (serviceValue) => {
-    setSelectedService(serviceValue);
-    setActiveServiceModal(null);
-    const contactSection = document.getElementById('contact');
-    if (contactSection) {
-      // Small delay to allow modal close animation to start
-      setTimeout(() => {
-        contactSection.scrollIntoView({ behavior: 'smooth' });
-      }, 100);
-    }
-  };
-
-  return (
-    <div className="font-sans antialiased text-slate-800 bg-slate-50 selection:bg-emerald-200 selection:text-emerald-900 overflow-x-hidden">
-      <style>{`
-        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600&family=Playfair+Display:wght@400;600;700;800&display=swap');
-        
-        :root {
-          --font-sans: 'Inter', sans-serif;
-          --font-serif: 'Playfair Display', serif;
+    <style>
+        body {
+            font-family: 'Roboto', sans-serif;
+            scroll-behavior: smooth;
+            background-color: #f8fafc;
+            color: #334155;
+        }
+        h1, h2, h3, h4, h5, h6 {
+            font-family: 'Montserrat', sans-serif;
         }
         
-        body { font-family: var(--font-sans); }
-        h1, h2, h3, h4, .font-serif { font-family: var(--font-serif); }
+        /* --- Professional Color Theme --- */
+        /* Darker, more distinguished Green (Forest/Teal mix) */
+        .text-medical-green { color: #059669; }
+        .bg-medical-green { background-color: #059669; }
+        .hover-bg-medical-green:hover { background-color: #047857; }
+        .border-medical-green { border-color: #059669; }
         
-        .cubic-bezier { transition-timing-function: cubic-bezier(0.16, 1, 0.3, 1); }
+        /* Deep Corporate Blue/Slate */
+        .text-deep-blue { color: #0f172a; } 
+        .bg-deep-blue { background-color: #0f172a; }
+        .hover-text-deep-blue:hover { color: #1e293b; }
+
+        /* Subtle Off-White for sections */
+        .bg-off-white { background-color: #f8fafc; }
         
-        @keyframes slowZoom {
-          0% { transform: scale(1); }
-          100% { transform: scale(1.15); }
+        .hero-overlay {
+            /* NYC/NJ Skyline aesthetic */
+            background: linear-gradient(rgba(15, 23, 42, 0.92), rgba(15, 23, 42, 0.8)), url('https://images.unsplash.com/photo-1496442226666-8d4a0e62e6e9?ixlib=rb-4.0.3&auto=format&fit=crop&w=2000&q=80');
+            background-size: cover;
+            background-position: center;
+            background-attachment: fixed;
         }
-        .animate-slowZoom { animation: slowZoom 20s ease-out infinite alternate; }
+    </style>
+</head>
+<body>
+    <div id="root"></div>
+
+    <script type="text/babel">
+        const { useState, useEffect } = React;
+
+        // --- Icons (Inline SVGs) ---
+        const Microscope = (props) => (
+            <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" {...props}>
+                <path d="M6 18h8"/><path d="M3 22h18"/><path d="M14 22a7 7 0 1 0 0-14h-1"/><path d="M9 14h2"/><path d="M9 12a2 2 0 0 1-2-2V6h6v4a2 2 0 0 1-2 2Z"/><path d="M12 6V3a1 1 0 0 0-1-1H9a1 1 0 0 0-1 1v3"/>
+            </svg>
+        );
+
+        const Wind = (props) => (
+            <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" {...props}>
+                <path d="M17.7 7.7a2.5 2.5 0 1 1 1.8 4.3H2"/><path d="M9.6 4.6A2 2 0 1 1 11 8H2"/><path d="M12.6 19.4A2 2 0 1 0 14 16H2"/>
+            </svg>
+        );
+
+        const Flame = (props) => (
+            <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" {...props}>
+                <path d="M8.5 14.5A2.5 2.5 0 0 0 11 12c0-1.38-.5-2-1-3-1.072-2.143-.224-4.054 2-6 .5 2.5 2 4.9 4 6.5 2 1.6 3 3.5 3 5.5a7 7 0 1 1-14 0c0-1.1.243-2.143.5-3.5a6 6 0 1 0 6.329-2.559"/>
+            </svg>
+        );
+
+        const FileText = (props) => (
+            <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" {...props}>
+                <path d="M14.5 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V7.5L14.5 2z"/><polyline points="14 2 14 8 20 8"/><line x1="16" x2="8" y1="13" y2="13"/><line x1="16" x2="8" y1="17" y2="17"/><line x1="10" x2="8" y1="9" y2="9"/>
+            </svg>
+        );
+
+        const Activity = (props) => (
+            <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" {...props}>
+                <path d="M22 12h-4l-3 9L9 3l-3 9H2"/>
+            </svg>
+        );
+
+        const Menu = (props) => (
+            <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" {...props}>
+                <line x1="4" x2="20" y1="12" y2="12"/><line x1="4" x2="20" y1="6" y2="6"/><line x1="4" x2="20" y1="18" y2="18"/>
+            </svg>
+        );
+
+        const X = (props) => (
+            <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" {...props}>
+                <path d="M18 6 6 18"/><path d="m6 6 18 12"/>
+            </svg>
+        );
+
+        const MapPin = (props) => (
+            <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" {...props}>
+                <path d="M20 10c0 6-8 12-8 12s-8-6-8-12a8 8 0 0 1 16 0Z"/><circle cx="12" cy="10" r="3"/>
+            </svg>
+        );
+
+        const Mail = (props) => (
+            <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" {...props}>
+                <rect width="20" height="16" x="2" y="4" rx="2"/><path d="m22 7-8.97 5.7a1.94 1.94 0 0 1-2.06 0L2 7"/>
+            </svg>
+        );
+
+        const Phone = (props) => (
+            <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" {...props}>
+                <path d="M22 16.92v3a2 2 0 0 1-2.18 2 19.79 19.79 0 0 1-8.63-3.07 19.5 19.5 0 0 1-6-6 19.79 19.79 0 0 1-3.07-8.67A2 2 0 0 1 4.11 2h3a2 2 0 0 1 2 1.72 12.84 12.84 0 0 0 .7 2.81 2 2 0 0 1-.45 2.11L8.09 9.91a16 16 0 0 0 6 6l1.27-1.27a2 2 0 0 1 2.11-.45 12.84 12.84 0 0 0 2.81.7A2 2 0 0 1 22 16.92z"/>
+            </svg>
+        );
         
-        @keyframes float {
-          0%, 100% { transform: translateY(0); }
-          50% { transform: translateY(-10px); }
-        }
-        .animate-float { animation: float 6s ease-in-out infinite; }
-      `}</style>
+        const CheckCircle = (props) => (
+             <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" {...props}>
+                <path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"/><polyline points="22 4 12 14.01 9 11.01"/>
+            </svg>
+        );
 
-      <Navbar />
-      
-      {/* Service Detail Modal */}
-      {activeServiceModal && (
-        <ServiceModal 
-          service={activeServiceModal} 
-          onClose={() => setActiveServiceModal(null)} 
-          onContact={handleModalContact} 
-        />
-      )}
+        const BadgeCheck = (props) => (
+            <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" {...props}>
+                <path d="M3.85 8.62a4 4 0 0 1 4.78-4.77 4 4 0 0 1 6.74 0 4 4 0 0 1 4.78 4.78 4 4 0 0 1 0 6.74 4 4 0 0 1-4.78 4.78 4 4 0 0 1-6.74 0 4 4 0 0 1-4.78-4.78 4 4 0 0 1 0-6.74Z"/><path d="m9 12 2 2 4-4"/>
+            </svg>
+        );
 
-      {/* HERO SECTION */}
-      <header id="home" className="relative h-screen min-h-[800px] flex items-center justify-center overflow-hidden">
-        {/* Background Layer with Zoom Effect */}
-        <div className="absolute inset-0 z-0 overflow-hidden bg-slate-900">
-          <div className="absolute inset-0 bg-gradient-to-r from-slate-900/90 via-slate-900/70 to-emerald-900/60 z-20"></div>
-          <img
-            src="https://images.unsplash.com/photo-1504328345606-18bbc8c9d7d1?auto=format&fit=crop&q=80"
-            alt="New York Skyline and Safety"
-            className="w-full h-full object-cover animate-slowZoom opacity-60 z-10"
-          />
-        </div>
+        // --- Components ---
 
-        {/* Content */}
-        <div className="container mx-auto px-6 relative z-30 pt-20">
-          <div className="max-w-5xl mx-auto text-center">
-            <Reveal direction="down">
-              <div className="inline-flex items-center gap-2 px-4 py-2 bg-white/10 backdrop-blur-md rounded-full border border-white/20 mb-8 shadow-2xl">
-                <CheckCircle2 size={16} className="text-emerald-400" />
-                <span className="text-emerald-100 text-xs font-bold uppercase tracking-widest">NY & NJ Premier Compliance Experts</span>
-              </div>
-            </Reveal>
-            
-            <Reveal delay={200}>
-              <h1 className="text-5xl md:text-7xl lg:text-8xl font-bold text-white mb-8 leading-[1.1] tracking-tight">
-                Safety is not just <br/>
-                <span className="text-transparent bg-clip-text bg-gradient-to-r from-emerald-300 to-teal-200">a priority.</span>
-                <span className="block text-4xl md:text-6xl font-normal italic mt-2 text-slate-300">It's our guarantee.</span>
-              </h1>
-            </Reveal>
+        const Navbar = () => {
+            const [isOpen, setIsOpen] = useState(false);
+            const [scrolled, setScrolled] = useState(false);
 
-            <Reveal delay={400}>
-              <p className="text-lg md:text-xl text-slate-300 mb-10 max-w-2xl mx-auto font-light leading-relaxed">
-                Led by Richard Rober, we deliver precision inspections, environmental monitoring, and unwavering compliance solutions.
-              </p>
-            </Reveal>
+            useEffect(() => {
+                const handleScroll = () => {
+                    setScrolled(window.scrollY > 20);
+                };
+                window.addEventListener('scroll', handleScroll);
+                return () => window.removeEventListener('scroll', handleScroll);
+            }, []);
 
-            <Reveal delay={600} className="flex flex-col sm:flex-row gap-5 justify-center">
-              <a href="#contact" className="px-10 py-4 bg-emerald-600 hover:bg-emerald-500 text-white rounded-full font-bold text-lg transition-all shadow-[0_10px_40px_-10px_rgba(16,185,129,0.5)] hover:shadow-[0_20px_60px_-15px_rgba(16,185,129,0.6)] hover:-translate-y-1">
-                Schedule Consultation
-              </a>
-              <a href="#services" className="px-10 py-4 bg-white/5 hover:bg-white/10 text-white border border-white/20 rounded-full font-bold text-lg transition-all backdrop-blur-sm flex items-center justify-center gap-2 group">
-                Explore Services
-                <ArrowRight size={18} className="group-hover:translate-x-1 transition-transform" />
-              </a>
-            </Reveal>
-          </div>
-        </div>
+            const navLinks = [
+                { name: 'Services', href: '#services' },
+                { name: 'Air Monitoring', href: '#air-monitoring' },
+                { name: 'Inspections', href: '#inspections' },
+                { name: 'Contact', href: '#contact' },
+            ];
 
-        {/* Scroll Indicator */}
-        <div className="absolute bottom-10 left-1/2 -translate-x-1/2 z-30 animate-bounce text-white/50">
-           <ChevronDown size={32} />
-        </div>
-      </header>
-
-      {/* STATS STRIP */}
-      <section className="relative z-40 -mt-20 container mx-auto px-6">
-        <div className="bg-slate-900 rounded-2xl p-8 shadow-2xl border-t border-slate-700 grid grid-cols-2 md:grid-cols-4 gap-4">
-           <StatCard number="30+" label="Years Experience" />
-           <StatCard number="100%" label="Compliance Rate" />
-           <StatCard number="NY/NJ" label="Area Coverage" />
-           <StatCard number="24/7" label="Client Support" />
-        </div>
-      </section>
-
-      {/* SERVICES SECTION */}
-      <section id="services" className="py-32 bg-slate-50">
-        <div className="container mx-auto px-6">
-          <div className="flex flex-col md:flex-row justify-between items-end mb-20">
-            <Reveal className="max-w-2xl">
-                <span className="text-emerald-600 font-bold uppercase tracking-widest text-sm mb-2 block">Our Expertise</span>
-                <h2 className="text-4xl md:text-6xl font-bold text-slate-900">Comprehensive <br/>Safety Solutions</h2>
-            </Reveal>
-            <Reveal delay={200} className="hidden md:block">
-                <p className="text-slate-500 max-w-sm text-right leading-relaxed">
-                    Tailored solutions delivering precision, ensuring compliance, and peace of mind for every client.
-                </p>
-            </Reveal>
-          </div>
-
-          <div className="grid md:grid-cols-2 lg:grid-cols-4 gap-6">
-            {SERVICES_DATA.map((service, index) => (
-              <ServiceCard
-                key={service.id}
-                service={service}
-                delay={index * 150}
-                onLearnMore={handleLearnMore}
-              />
-            ))}
-          </div>
-        </div>
-      </section>
-
-      {/* ABOUT SECTION - BROKEN GRID LAYOUT */}
-      <section id="about" className="py-32 bg-white overflow-hidden">
-        <div className="container mx-auto px-6">
-          <div className="flex flex-col lg:flex-row items-center gap-16 lg:gap-24">
-            
-            {/* Image Side */}
-            <div className="lg:w-1/2 relative">
-                <Reveal direction="right">
-                    <div className="relative z-10 rounded-2xl overflow-hidden shadow-2xl">
-                        <img
-                        src="https://images.unsplash.com/photo-1581094794329-c8112a89af12?auto=format&fit=crop&q=80"
-                        alt="Safety Inspection"
-                        className="w-full h-[600px] object-cover"
-                        />
-                        <div className="absolute inset-0 bg-gradient-to-t from-slate-900 to-transparent opacity-80"></div>
-                        <div className="absolute bottom-8 left-8 text-white">
-                            <h3 className="text-3xl font-bold mb-1">Richard Rober</h3>
-                            <p className="text-emerald-400 font-medium">Founder & Lead Consultant</p>
-                        </div>
-                    </div>
-                </Reveal>
-                {/* Decorative Back Box */}
-                <div className="absolute top-10 -left-10 w-full h-full border-2 border-emerald-100 rounded-2xl -z-0 hidden lg:block"></div>
-            </div>
-
-            {/* Text Side */}
-            <div className="lg:w-1/2">
-              <Reveal>
-                <div className="flex items-center gap-4 mb-6">
-                    <div className="h-px bg-slate-200 flex-1"></div>
-                    <span className="text-emerald-600 font-bold uppercase tracking-widest text-xs">About The Firm</span>
-                </div>
-                <h2 className="text-4xl md:text-5xl font-bold text-slate-900 mb-8 leading-tight">
-                  A Legacy of <span className="text-emerald-700 italic">Excellence</span> <br/> 
-                  Built on Trust.
-                </h2>
-                <p className="text-lg text-slate-600 mb-6 leading-relaxed">
-                  Founded by Richard Rober, New York Safety Services stands as a beacon of reliability in environmental and safety compliance. With over three decades of industry leadership, we don't just meet standards—we set them.
-                </p>
-                <p className="text-slate-500 mb-10 leading-relaxed font-light">
-                  Our commitment maximizes safety while minimizing downtime. We understand the unique regulatory landscape of the Tri-State area, allowing us to navigate complexities that others simply cannot.
-                </p>
-              </Reveal>
-
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                {[
-                    { icon: Award, title: "Certified Masters", desc: "Industry-leading credentials." },
-                    { icon: Globe, title: "Regional Experts", desc: "Deep NY/NJ regulatory knowledge." },
-                    { icon: Shield, title: "Risk Mitigation", desc: "Proactive safety strategies." },
-                    { icon: Users, title: "Client First", desc: "Dedicated partnership approach." }
-                ].map((item, idx) => (
-                    <Reveal key={idx} delay={idx * 100} className="flex items-start gap-4 p-4 rounded-xl hover:bg-slate-50 transition-colors">
-                        <div className="bg-emerald-100/50 p-3 rounded-lg text-emerald-700">
-                            <item.icon size={24} />
-                        </div>
-                        <div>
-                            <h4 className="font-bold text-slate-900">{item.title}</h4>
-                            <p className="text-sm text-slate-500">{item.desc}</p>
-                        </div>
-                    </Reveal>
-                ))}
-              </div>
-            </div>
-          </div>
-        </div>
-      </section>
-
-      {/* CONTACT SECTION - DARK MODE */}
-      <section id="contact" className="py-32 bg-slate-900 relative overflow-hidden">
-        {/* Abstract Shapes */}
-        <div className="absolute top-0 right-0 w-[600px] h-[600px] bg-emerald-900/20 rounded-full blur-3xl -translate-y-1/2 translate-x-1/2"></div>
-        <div className="absolute bottom-0 left-0 w-[400px] h-[400px] bg-blue-900/10 rounded-full blur-3xl translate-y-1/2 -translate-x-1/2"></div>
-
-        <div className="container mx-auto px-6 relative z-10">
-          <div className="text-center mb-20">
-            <Reveal>
-                <h2 className="text-4xl md:text-6xl font-bold text-white mb-6">Let's Secure Your Future</h2>
-                <p className="text-xl text-slate-400 max-w-2xl mx-auto font-light">
-                Ready to elevate your safety standards? Contact Richard Rober and his team for a personalized consultation today.
-                </p>
-            </Reveal>
-          </div>
-
-          <div className="grid lg:grid-cols-5 gap-12 bg-white/5 backdrop-blur-sm rounded-3xl p-8 md:p-12 border border-white/10 shadow-2xl">
-            {/* Contact Info */}
-            <div className="lg:col-span-2 space-y-10">
-                <Reveal delay={100}>
-                    <h3 className="text-2xl font-serif font-bold text-white mb-8">Contact Information</h3>
-                    
-                    <div className="space-y-8">
-                        <div className="flex items-start gap-6 group">
-                            <div className="w-12 h-12 rounded-full bg-emerald-500/10 flex items-center justify-center text-emerald-400 group-hover:bg-emerald-500 group-hover:text-white transition-all">
-                                <Phone size={24} />
+            return (
+                <nav className={`fixed w-full z-50 transition-all duration-300 ${scrolled ? 'bg-deep-blue shadow-xl py-3' : 'bg-transparent py-5'}`}>
+                    <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+                        <div className="flex items-center justify-between h-16">
+                            <div className="flex items-center">
+                                <div className="flex-shrink-0 flex items-center gap-3">
+                                    {/* Logo Icon */}
+                                    <div className={`p-2 rounded-md ${scrolled ? 'bg-white/10 text-medical-green' : 'bg-white text-deep-blue'}`}>
+                                        <Activity className="h-6 w-6" />
+                                    </div>
+                                    <div className="flex flex-col">
+                                        <span className="text-white font-bold text-lg leading-none tracking-wide">
+                                            NEW YORK
+                                        </span>
+                                        <span className="text-medical-green font-bold text-sm leading-none tracking-widest">
+                                            SAFETY SERVICES LLC
+                                        </span>
+                                    </div>
+                                </div>
                             </div>
-                            <div>
-                                <p className="text-sm text-slate-400 uppercase tracking-wider font-semibold mb-1">Call Us Directly</p>
-                                <a href="tel:9178477337" className="text-2xl font-bold text-white hover:text-emerald-400 transition-colors">917 847 7337</a>
+                            <div className="hidden md:block">
+                                <div className="ml-10 flex items-baseline space-x-8">
+                                    {navLinks.map((link) => (
+                                        <a key={link.name} href={link.href} className="text-slate-300 hover:text-white px-3 py-2 rounded-md text-sm font-medium transition-colors uppercase tracking-wider">
+                                            {link.name}
+                                        </a>
+                                    ))}
+                                    <a href="#contact" className="bg-medical-green hover-bg-medical-green text-white px-6 py-2 rounded-sm text-sm font-bold shadow-md transition-all uppercase tracking-wider">
+                                        Get A Quote
+                                    </a>
+                                </div>
                             </div>
-                        </div>
-
-                        <div className="flex items-start gap-6 group">
-                            <div className="w-12 h-12 rounded-full bg-emerald-500/10 flex items-center justify-center text-emerald-400 group-hover:bg-emerald-500 group-hover:text-white transition-all">
-                                <Mail size={24} />
-                            </div>
-                            <div>
-                                <p className="text-sm text-slate-400 uppercase tracking-wider font-semibold mb-1">Email Us</p>
-                                <a href="mailto:newyorksafetyservices@yahoo.com" className="text-lg font-medium text-white hover:text-emerald-400 transition-colors break-all">newyorksafetyservices@yahoo.com</a>
-                            </div>
-                        </div>
-
-                        <div className="flex items-start gap-6 group">
-                            <div className="w-12 h-12 rounded-full bg-emerald-500/10 flex items-center justify-center text-emerald-400 group-hover:bg-emerald-500 group-hover:text-white transition-all">
-                                <MapPin size={24} />
-                            </div>
-                            <div>
-                                <p className="text-sm text-slate-400 uppercase tracking-wider font-semibold mb-1">Service Area</p>
-                                <p className="text-lg font-medium text-white">New York & New Jersey Metro</p>
+                            <div className="-mr-2 flex md:hidden">
+                                <button onClick={() => setIsOpen(!isOpen)} className="inline-flex items-center justify-center p-2 rounded-md text-slate-200 hover:text-white focus:outline-none">
+                                    {isOpen ? <X className="h-6 w-6" /> : <Menu className="h-6 w-6" />}
+                                </button>
                             </div>
                         </div>
                     </div>
-                </Reveal>
-            </div>
 
-            {/* Form */}
-            <div className="lg:col-span-3 bg-white rounded-2xl p-8 md:p-10 shadow-xl">
-              <form className="space-y-6" onSubmit={(e) => e.preventDefault()}>
-                <div className="grid md:grid-cols-2 gap-6">
-                  <div>
-                    <label className="block text-sm font-bold text-slate-700 mb-2">Name</label>
-                    <input type="text" className="w-full px-4 py-3 rounded-lg bg-slate-50 border border-slate-200 focus:border-emerald-500 focus:ring-2 focus:ring-emerald-100 outline-none transition-all" placeholder="John Doe" />
-                  </div>
-                  <div>
-                    <label className="block text-sm font-bold text-slate-700 mb-2">Phone</label>
-                    <input type="tel" className="w-full px-4 py-3 rounded-lg bg-slate-50 border border-slate-200 focus:border-emerald-500 focus:ring-2 focus:ring-emerald-100 outline-none transition-all" placeholder="(555) 000-0000" />
-                  </div>
+                    {/* Mobile Menu */}
+                    {isOpen && (
+                        <div className="md:hidden bg-slate-900 shadow-xl border-t border-slate-800">
+                            <div className="px-2 pt-2 pb-3 space-y-1 sm:px-3">
+                                {navLinks.map((link) => (
+                                    <a 
+                                        key={link.name} 
+                                        href={link.href} 
+                                        onClick={() => setIsOpen(false)}
+                                        className="text-slate-300 hover:text-white block px-3 py-2 rounded-md text-base font-medium"
+                                    >
+                                        {link.name}
+                                    </a>
+                                ))}
+                                <a 
+                                    href="#contact" 
+                                    onClick={() => setIsOpen(false)}
+                                    className="text-medical-green block px-3 py-2 rounded-md text-base font-bold uppercase"
+                                >
+                                    CONTACT US
+                                </a>
+                            </div>
+                        </div>
+                    )}
+                </nav>
+            );
+        };
+
+        const Hero = () => {
+            return (
+                <div className="relative hero-overlay h-screen flex items-center justify-center">
+                    <div className="absolute bottom-0 w-full h-24 bg-gradient-to-t from-slate-50 to-transparent opacity-0"></div>
+                    <div className="relative max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 text-center pt-20">
+                        <div className="inline-flex items-center gap-3 p-2 px-5 rounded-full bg-slate-900/60 backdrop-blur-sm border border-slate-700 mb-8 animate-fade-in-up">
+                            <BadgeCheck className="h-5 w-5 text-medical-green" />
+                            <span className="text-slate-200 font-semibold tracking-widest text-xs uppercase">Established 2009 &bull; Operating 16+ Years</span>
+                        </div>
+                        
+                        <h1 className="text-4xl md:text-6xl lg:text-7xl font-extrabold text-white mb-8 leading-tight drop-shadow-lg tracking-tight">
+                            TRUSTED SAFETY <br />
+                            <span className="text-medical-green">SINCE 2009.</span>
+                        </h1>
+                        
+                        <p className="mt-2 max-w-3xl mx-auto text-lg md:text-xl text-slate-300 font-light leading-relaxed">
+                            A Domestic Limited Liability Company registered in Richmond County, serving <strong>Major Hospitals</strong> and <strong>Developments</strong> across New York & New Jersey.
+                        </p>
+                        
+                        <div className="mt-12 flex flex-col sm:flex-row gap-5 justify-center">
+                            <a href="#contact" className="bg-medical-green hover-bg-medical-green text-white px-8 py-4 rounded-sm text-lg font-bold shadow-lg hover:shadow-xl transition-all border border-transparent uppercase tracking-wide">
+                                Request Proposal
+                            </a>
+                            <a href="#services" className="bg-transparent border border-slate-400 text-white hover:bg-white hover:text-deep-blue px-8 py-4 rounded-sm text-lg font-bold transition-all uppercase tracking-wide">
+                                Our Expertise
+                            </a>
+                        </div>
+                    </div>
                 </div>
-                
-                <div>
-                  <label className="block text-sm font-bold text-slate-700 mb-2">Service Needed</label>
-                  <select 
-                    value={selectedService} 
-                    onChange={(e) => setSelectedService(e.target.value)}
-                    className="w-full px-4 py-3 rounded-lg bg-slate-50 border border-slate-200 focus:border-emerald-500 focus:ring-2 focus:ring-emerald-100 outline-none transition-all"
-                  >
-                    <option value="General Inquiry">General Inquiry</option>
-                    <option value="Site Inspection">Site Inspection</option>
-                    <option value="Lab Analysis">Lab Analysis</option>
-                    <option value="Air Quality Monitoring">Air Quality Monitoring</option>
-                    <option value="Fire Safety Assessment">Fire Safety Assessment</option>
-                  </select>
+            );
+        };
+
+        const Stats = () => {
+            return (
+                <div className="bg-slate-100 py-16 -mt-10 relative z-10">
+                    <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+                        <div className="bg-white rounded-lg shadow-2xl p-10 grid grid-cols-1 md:grid-cols-3 gap-8 text-center divide-y md:divide-y-0 md:divide-x divide-slate-200 border-t-4 border-medical-green">
+                            <div className="p-4">
+                                <h3 className="text-5xl font-extrabold text-deep-blue">16+</h3>
+                                <p className="text-slate-600 mt-3 font-semibold uppercase tracking-wider text-sm">Years in Business</p>
+                            </div>
+                            <div className="p-4">
+                                <h3 className="text-5xl font-extrabold text-deep-blue">2009</h3>
+                                <p className="text-slate-600 mt-3 font-semibold uppercase tracking-wider text-sm">Incorporated (NY)</p>
+                            </div>
+                            <div className="p-4">
+                                <h3 className="text-5xl font-extrabold text-deep-blue">NY/NJ</h3>
+                                <p className="text-slate-600 mt-3 font-semibold uppercase tracking-wider text-sm">Licensed Service Area</p>
+                            </div>
+                        </div>
+                    </div>
                 </div>
+            );
+        };
 
-                <div>
-                  <label className="block text-sm font-bold text-slate-700 mb-2">Message</label>
-                  <textarea rows="4" className="w-full px-4 py-3 rounded-lg bg-slate-50 border border-slate-200 focus:border-emerald-500 focus:ring-2 focus:ring-emerald-100 outline-none transition-all" placeholder="How can we help you?"></textarea>
+        const Services = () => {
+            const services = [
+                {
+                    title: "Air Monitoring",
+                    desc: "Continuous environmental monitoring for dust, VOCs, and particulate matter. Protecting sensitive hospital environments.",
+                    icon: <Wind className="h-7 w-7 text-slate-300" />,
+                    bgClass: "bg-slate-800"
+                },
+                {
+                    title: "Inspections & Audits",
+                    desc: "Comprehensive site safety inspections ensuring full compliance with local regulations tailored for healthcare facilities.",
+                    icon: <CheckCircle className="h-7 w-7 text-white" />,
+                    bgClass: "bg-medical-green"
+                },
+                {
+                    title: "Lab Reports",
+                    desc: "Expedited laboratory analysis for mold, asbestos, and lead. Understanding that in a hospital setting, time is critical.",
+                    icon: <Microscope className="h-7 w-7 text-slate-300" />,
+                    bgClass: "bg-slate-900"
+                },
+                {
+                    title: "Fire Safety Management",
+                    desc: "Licensed Fire Safety Managers to oversee hot work, conduct fire drills, and maintain systems during renovations.",
+                    icon: <Flame className="h-7 w-7 text-slate-300" />,
+                    bgClass: "bg-slate-800"
+                },
+                {
+                    title: "Infection Control (ICRA)",
+                    desc: "Supporting ICRA protocols with negative pressure monitoring and barrier inspections to prevent contaminant migration.",
+                    icon: <Activity className="h-7 w-7 text-slate-300" />,
+                    bgClass: "bg-slate-800"
+                },
+                {
+                    title: "Environmental Consulting",
+                    desc: "Expert guidance on hazardous material handling, abatement planning, and environmental health and safety (EHS).",
+                    icon: <FileText className="h-7 w-7 text-slate-300" />,
+                    bgClass: "bg-slate-800"
+                }
+            ];
+
+            return (
+                <section id="services" className="py-24 bg-white">
+                    <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+                        <div className="text-center mb-20">
+                            <h2 className="text-medical-green font-bold tracking-widest uppercase text-xs mb-4">Our Competencies</h2>
+                            <h3 className="text-3xl md:text-4xl font-bold text-deep-blue mb-6">Specialized Safety Services</h3>
+                            <div className="h-1 w-24 bg-deep-blue mx-auto rounded-full mb-6"></div>
+                            <p className="text-slate-500 max-w-2xl mx-auto text-lg leading-relaxed">
+                                Operating as a specialized Domestic LLC since 2009, we combine technical precision with regulatory expertise to deliver safety solutions that keep your facility running without interruption.
+                            </p>
+                        </div>
+
+                        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
+                            {services.map((service, index) => (
+                                <div key={index} className="group bg-white border border-slate-200 p-8 hover:shadow-2xl transition-all duration-300 hover:-translate-y-1 rounded-sm">
+                                    <div className={`w-14 h-14 ${service.bgClass} flex items-center justify-center mb-6 shadow-sm rounded-sm`}>
+                                        {service.icon}
+                                    </div>
+                                    <h4 className="text-xl font-bold text-deep-blue mb-4 group-hover:text-medical-green transition-colors">{service.title}</h4>
+                                    <p className="text-slate-600 leading-relaxed text-sm mb-6">{service.desc}</p>
+                                    
+                                    <a href="#contact" className="inline-flex items-center text-sm font-bold text-deep-blue group-hover:translate-x-2 transition-transform">
+                                        Learn More <span className="ml-2 text-medical-green">→</span>
+                                    </a>
+                                </div>
+                            ))}
+                        </div>
+                    </div>
+                </section>
+            );
+        };
+
+        const HealthcareFocus = () => {
+            return (
+                <section id="inspections" className="py-24 bg-deep-blue text-white overflow-hidden relative">
+                    {/* Darker Geometric Background Pattern */}
+                    <div className="absolute top-0 right-0 w-1/2 h-full bg-slate-800/20 transform -skew-x-12"></div>
+
+                    <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 relative z-10">
+                        <div className="grid grid-cols-1 lg:grid-cols-2 gap-16 items-center">
+                            <div>
+                                <div className="inline-block px-3 py-1 border border-slate-600 rounded-sm text-xs font-bold tracking-widest text-slate-300 uppercase mb-6">
+                                    Our Legacy
+                                </div>
+                                <h2 className="text-3xl md:text-5xl font-bold mb-6 leading-tight">
+                                    Setting the Standard <br/>
+                                    <span className="text-medical-green">Since Feb 2009.</span>
+                                </h2>
+                                <p className="text-slate-300 mb-8 text-lg leading-relaxed">
+                                    With over 16 years of active operation, New York Safety Services LLC has established itself as a premier partner for healthcare institutions. We understand that in a hospital, safety protocols must be rigorous, documented, and invisible to patients.
+                                </p>
+                                
+                                <ul className="space-y-6 mb-10">
+                                    <li className="flex items-start gap-5">
+                                        <div className="bg-medical-green p-3 rounded-sm text-white shadow-lg">
+                                            <Microscope size={20} />
+                                        </div>
+                                        <div>
+                                            <h4 className="font-bold text-white text-lg">DOS Registered</h4>
+                                            <p className="text-sm text-slate-400 mt-1">Fully active entity status in New York Jurisdiction.</p>
+                                        </div>
+                                    </li>
+                                    <li className="flex items-start gap-5">
+                                        <div className="bg-slate-700 p-3 rounded-sm text-white shadow-lg">
+                                            <Activity size={20} />
+                                        </div>
+                                        <div>
+                                            <h4 className="font-bold text-white text-lg">Hospital Specialized</h4>
+                                            <p className="text-sm text-slate-400 mt-1">Discreet monitoring protocols that respect patient privacy.</p>
+                                        </div>
+                                    </li>
+                                </ul>
+
+                                <a href="#contact" className="inline-block bg-white text-deep-blue font-bold px-8 py-4 rounded-sm hover:bg-slate-100 transition-colors uppercase tracking-wide">
+                                    Consult with our Experts
+                                </a>
+                            </div>
+                            <div className="relative hidden lg:block">
+                                <div className="absolute top-4 left-4 w-full h-full border-2 border-medical-green rounded-sm"></div>
+                                <img 
+                                    src="https://images.unsplash.com/photo-1516574187841-693083f69802?ixlib=rb-4.0.3&auto=format&fit=crop&w=1000&q=80" 
+                                    alt="Laboratory Inspection" 
+                                    className="relative rounded-sm shadow-2xl filter brightness-90 contrast-125"
+                                />
+                                <div className="absolute -bottom-10 -left-10 bg-slate-900 p-8 rounded-sm shadow-2xl max-w-xs text-white border-l-4 border-medical-green">
+                                    <p className="font-bold text-xl mb-1">Richard Rober</p>
+                                    <p className="text-sm text-slate-400 uppercase tracking-wider">CEO & Chief Inspector</p>
+                                    <div className="mt-4 pt-4 border-t border-slate-700">
+                                        <p className="text-xs text-medical-green font-bold uppercase tracking-wide">30+ Years Personal Experience</p>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </section>
+            );
+        };
+
+        const Contact = () => {
+            const handleSubmit = (e) => {
+                e.preventDefault();
+                alert("Thank you. Richard Rober and the team have received your request.");
+            };
+
+            return (
+                <section id="contact" className="py-24 bg-slate-100">
+                    <div className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8">
+                        <div className="text-center mb-16">
+                            <h2 className="text-3xl font-bold text-deep-blue">Executive Contact</h2>
+                            <p className="mt-4 text-slate-500">Registered Office & Direct Communications.</p>
+                        </div>
+                        
+                        <div className="bg-white rounded-lg shadow-2xl overflow-hidden flex flex-col md:flex-row">
+                            <div className="bg-deep-blue p-12 md:w-5/12 text-white flex flex-col justify-between relative overflow-hidden">
+                                {/* Decorative circle */}
+                                <div className="absolute -top-24 -right-24 w-48 h-48 bg-white/5 rounded-full blur-3xl"></div>
+                                
+                                <div className="relative z-10">
+                                    <h3 className="text-2xl font-bold mb-2">Get In Touch</h3>
+                                    <p className="text-slate-400 text-sm mb-10">Contact our headquarters for proposals and immediate service.</p>
+                                    
+                                    <div className="space-y-8">
+                                        <div className="flex items-start space-x-5">
+                                            <Phone className="text-medical-green h-6 w-6 mt-1" />
+                                            <div>
+                                                <p className="text-xs text-slate-400 uppercase tracking-wider font-bold mb-1">Call Directly</p>
+                                                <p className="font-bold text-xl tracking-tight">(917) 847-7337</p>
+                                                <p className="text-xs text-slate-400 mt-1">Richard Rober, CEO</p>
+                                            </div>
+                                        </div>
+                                        
+                                        <div className="flex items-start space-x-5">
+                                            <Mail className="text-medical-green h-6 w-6 mt-1" />
+                                            <div>
+                                                <p className="text-xs text-slate-400 uppercase tracking-wider font-bold mb-1">Email Us</p>
+                                                <p className="font-medium text-base text-white">newyorksafetyservices@yahoo.com</p>
+                                            </div>
+                                        </div>
+
+                                        <div className="flex items-start space-x-5">
+                                            <MapPin className="text-medical-green h-6 w-6 mt-1" />
+                                            <div>
+                                                <p className="text-xs text-slate-400 uppercase tracking-wider font-bold mb-1">Registered Address</p>
+                                                <p className="font-medium text-white text-sm">New York Safety Services LLC</p>
+                                                <p className="font-medium text-white text-sm">79 Curtis Place</p>
+                                                <p className="font-medium text-white text-sm">Toms River, NJ 08753</p>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                                <div className="mt-12 relative z-10">
+                                    <div className="h-0.5 w-16 bg-medical-green mb-4"></div>
+                                    <p className="text-sm italic text-slate-400 font-serif">"Incorporated 2009. Committed to Safety."</p>
+                                </div>
+                            </div>
+                            
+                            <div className="p-12 md:w-7/12 bg-white">
+                                <form onSubmit={handleSubmit} className="space-y-6">
+                                    <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                                        <div>
+                                            <label className="block text-xs font-bold text-slate-500 uppercase tracking-wide mb-2">Name</label>
+                                            <input type="text" className="w-full px-4 py-3 bg-slate-50 border border-slate-200 rounded-sm focus:border-deep-blue focus:ring-0 outline-none transition-all text-slate-800" placeholder="Full Name" />
+                                        </div>
+                                        <div>
+                                            <label className="block text-xs font-bold text-slate-500 uppercase tracking-wide mb-2">Facility</label>
+                                            <input type="text" className="w-full px-4 py-3 bg-slate-50 border border-slate-200 rounded-sm focus:border-deep-blue focus:ring-0 outline-none transition-all text-slate-800" placeholder="Hospital / Company" />
+                                        </div>
+                                    </div>
+                                    
+                                    <div>
+                                        <label className="block text-xs font-bold text-slate-500 uppercase tracking-wide mb-2">Service Required</label>
+                                        <select className="w-full px-4 py-3 bg-slate-50 border border-slate-200 rounded-sm focus:border-deep-blue focus:ring-0 outline-none transition-all text-slate-800">
+                                            <option>Air Monitoring & Environmental</option>
+                                            <option>Lab Analysis / Reports</option>
+                                            <option>Fire Safety Management</option>
+                                            <option>Site Safety Inspection</option>
+                                            <option>Other</option>
+                                        </select>
+                                    </div>
+                                    
+                                    <div>
+                                        <label className="block text-xs font-bold text-slate-500 uppercase tracking-wide mb-2">Project Details</label>
+                                        <textarea rows="4" className="w-full px-4 py-3 bg-slate-50 border border-slate-200 rounded-sm focus:border-deep-blue focus:ring-0 outline-none transition-all text-slate-800" placeholder="Describe your inspection or monitoring needs..."></textarea>
+                                    </div>
+                                    
+                                    <button type="submit" className="w-full bg-deep-blue hover:bg-slate-800 text-white font-bold py-4 rounded-sm transition-all shadow-lg uppercase tracking-wider text-sm">
+                                        Submit Request
+                                    </button>
+                                </form>
+                            </div>
+                        </div>
+                    </div>
+                </section>
+            );
+        };
+
+        const Footer = () => {
+            return (
+                <footer className="bg-slate-950 text-slate-400 py-16 border-t border-slate-900">
+                    <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+                        <div className="grid grid-cols-1 md:grid-cols-4 gap-12 mb-12">
+                            <div className="col-span-1 md:col-span-2">
+                                <div className="flex items-center gap-3 mb-6">
+                                    <div className="bg-slate-800 p-2 rounded-sm">
+                                        <Activity className="h-6 w-6 text-medical-green" />
+                                    </div>
+                                    <div className="flex flex-col">
+                                        <span className="text-white font-bold text-lg tracking-wider">NEW YORK</span>
+                                        <span className="text-medical-green font-bold text-sm tracking-widest">SAFETY SERVICES LLC</span>
+                                    </div>
+                                </div>
+                                <p className="text-sm max-w-sm leading-relaxed text-slate-500">
+                                    A Domestic Limited Liability Company (Active Status) specializing in hospital inspections and environmental safety since 2009.
+                                </p>
+                            </div>
+                            
+                            <div>
+                                <h4 className="text-white font-bold mb-6 uppercase text-xs tracking-widest">Services</h4>
+                                <ul className="space-y-3 text-sm">
+                                    <li><a href="#" className="hover:text-medical-green transition-colors">Air Monitoring</a></li>
+                                    <li><a href="#" className="hover:text-medical-green transition-colors">Lab Reports</a></li>
+                                    <li><a href="#" className="hover:text-medical-green transition-colors">Fire Safety</a></li>
+                                    <li><a href="#" className="hover:text-medical-green transition-colors">Inspections</a></li>
+                                </ul>
+                            </div>
+                            
+                            <div>
+                                <h4 className="text-white font-bold mb-6 uppercase text-xs tracking-widest">Contact</h4>
+                                <ul className="space-y-3 text-sm">
+                                    <li className="flex items-center gap-3"><Phone size={14} className="text-slate-600"/> (917) 847-7337</li>
+                                    <li className="flex items-center gap-3"><Mail size={14} className="text-slate-600"/> newyorksafetyservices@yahoo.com</li>
+                                    <li className="text-xs text-slate-600 mt-4 pt-4 border-t border-slate-900">79 Curtis Place, Toms River, NJ 08753</li>
+                                </ul>
+                            </div>
+                        </div>
+                        
+                        <div className="border-t border-slate-900 pt-8 flex flex-col md:flex-row justify-between items-center text-xs text-slate-600">
+                            <p>&copy; {new Date().getFullYear()} New York Safety Services LLC. All rights reserved.</p>
+                            <p className="mt-2 md:mt-0">Established 2009 • Richmond County Registration</p>
+                        </div>
+                    </div>
+                </footer>
+            );
+        };
+
+        const App = () => {
+            return (
+                <div className="bg-off-white min-h-screen">
+                    <Navbar />
+                    <Hero />
+                    <Stats />
+                    <Services />
+                    <HealthcareFocus />
+                    <Contact />
+                    <Footer />
                 </div>
+            );
+        };
 
-                <button className="w-full py-4 bg-slate-900 hover:bg-emerald-700 text-white font-bold rounded-lg shadow-lg hover:shadow-xl transition-all transform hover:-translate-y-1 flex justify-center items-center gap-2">
-                  Send Message
-                  <ArrowRight size={18} />
-                </button>
-              </form>
-            </div>
-          </div>
-        </div>
-      </section>
-
-      {/* FOOTER */}
-      <footer className="bg-slate-950 text-slate-400 py-16 border-t border-slate-800">
-        <div className="container mx-auto px-6">
-          <div className="flex flex-col md:flex-row justify-between items-center gap-8">
-            <div className="text-center md:text-left">
-                <div className="flex items-center gap-3 justify-center md:justify-start mb-4">
-                    <Logo className="h-8 w-auto" />
-                    <span className="text-white font-serif font-bold text-xl">NYSS</span>
-                </div>
-                <p className="text-sm max-w-xs mx-auto md:mx-0">
-                    Setting the gold standard for safety and environmental compliance in the Tri-State area.
-                </p>
-            </div>
-            
-            <div className="flex gap-8 text-sm font-medium">
-                <a href="#home" className="hover:text-emerald-400 transition-colors">Home</a>
-                <a href="#services" className="hover:text-emerald-400 transition-colors">Services</a>
-                <a href="#about" className="hover:text-emerald-400 transition-colors">About</a>
-                <a href="#contact" className="hover:text-emerald-400 transition-colors">Contact</a>
-            </div>
-
-            <div className="text-center md:text-right text-xs opacity-60">
-              <p>&copy; {new Date().getFullYear()} New York Safety Services.</p>
-              <p className="mt-1">All rights reserved.</p>
-            </div>
-          </div>
-        </div>
-      </footer>
-    </div>
-  );
-}
+        const root = ReactDOM.createRoot(document.getElementById('root'));
+        root.render(<App />);
+    </script>
+</body>
+</html>
